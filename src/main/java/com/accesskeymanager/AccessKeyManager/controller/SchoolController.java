@@ -22,15 +22,15 @@ public class SchoolController {
     // public School getSchoolById(@PathVariable Long id) {
         public School getSchoolById() {
         System.out.println("School");
-        // Optional<School> schoolOptional = schoolService.findById(id);
+         Optional<School> schoolOptional = schoolService.findById(id);
 
-        // if (schoolOptional.isPresent()) {
-        //     //return ResponseEntity.ok(schoolOptional.get());
-        //     return schoolOptional.orElseThrow();
-        // } else {
-        //     //return ResponseEntity.status(HttpStatus.NOT_FOUND).body("School not found.");
-        //     return null;
-        // }
+         if (schoolOptional.isPresent()) {
+             //return ResponseEntity.ok(schoolOptional.get());
+             return schoolOptional.orElseThrow();
+         } else {
+             //return ResponseEntity.status(HttpStatus.NOT_FOUND).body("School not found.");
+             return null;
+         }
         return null;
     }
 
