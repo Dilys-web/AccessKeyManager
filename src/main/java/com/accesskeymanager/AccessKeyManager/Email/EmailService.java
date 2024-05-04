@@ -39,4 +39,15 @@ public class EmailService {
 
     }
 
+    @Async
+    public CompletableFuture<Void> sendPasswordResetEmail(String userEmail, String resetUrl){
+        String subject = "Password Reset Request";
+        String body = "Hello " + userEmail + ",\n\n"
+                + "You have requested to reset your password. Please click on the link below to reset your password:\n\n"
+                + resetUrl + "\n\n"
+                + "If you did not request this, please ignore this email.\n\n"
+                + "Thank you,\nThe Micro-Focus Inc Team";
+        return sendEmail(userEmail, body, subject);
+    }
+
 }
