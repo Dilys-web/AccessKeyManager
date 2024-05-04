@@ -49,8 +49,8 @@ The objective of the Access Key Manager project is to build a web application th
 ## Technologies Used
 
 - **Frontend**: HTML, CSS, JavaScript (React, Angular, etc.)
-- **Backend**: Java (Spring Boot, etc.)
-- **Database**: PostgreSQL
+- **Backend**: Java (Spring Boot)
+- **Database**: Postgres
 
 ## Getting Started
 
@@ -58,12 +58,3 @@ The objective of the Access Key Manager project is to build a web application th
 2. Set up the backend server and database according to the provided ER diagram.
 3. Install dependencies and run the frontend application.
 4. Access the application through the provided deployed link.
-
-## Contributors
-
-- [Your Name](https://github.com/yourusername)
-- [Micro-Focus Inc.](https://github.com/microfocus)
-
-## License
-
-This project is licensed under the [MIT License](LICENSE).
