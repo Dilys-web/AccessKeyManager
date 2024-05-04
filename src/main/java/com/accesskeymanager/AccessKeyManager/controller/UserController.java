@@ -1,28 +1,27 @@
 package com.accesskeymanager.AccessKeyManager.controller;
 
 
-import com.accesskeymanager.AccessKeyManager.DTO.request.ResetPasswordRequest;
-import com.accesskeymanager.AccessKeyManager.DTO.request.SignInRequest;
-import com.accesskeymanager.AccessKeyManager.DTO.request.SignUpRequest;
-import com.accesskeymanager.AccessKeyManager.DTO.response.ResetPasswordResponse;
+import com.accesskeymanager.AccessKeyManager.DTO.request.*;
+import com.accesskeymanager.AccessKeyManager.DTO.response.ChangePasswordResponse;
 import com.accesskeymanager.AccessKeyManager.DTO.response.SignInResponse;
 import com.accesskeymanager.AccessKeyManager.DTO.response.SignUpResponse;
 import com.accesskeymanager.AccessKeyManager.DTO.response.VerifyResponse;
 import com.accesskeymanager.AccessKeyManager.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/auth/")
 @AllArgsConstructor
+
 public class UserController {
-    @Autowired
-    private  UserService userService;
+    private  final UserService userService;
 
     @PostMapping("signup")
     @Operation(summary = "registering a user")
@@ -32,19 +31,35 @@ public class UserController {
 
     @PostMapping("login")
     @Operation(summary = "authenticating a user")
-    public ResponseEntity<SignInResponse> login(@RequestBody SignInRequest signInRequest) {
+    public ResponseEntity<SignInResponse> login(@RequestBody @Valid SignInRequest signInRequest) {
         return userService.authenticate(signInRequest);
     }
     @GetMapping("verify-email")
     @Operation(summary = "user verification")
-    public ResponseEntity<VerifyResponse>verify(@RequestParam("otp")  int otp){
+    public ResponseEntity<VerifyResponse>verify(@RequestParam(value = "otp", required = false)  Integer otp, @RequestParam(value = "email", required = false)  String email, @RequestBody(required = false) VerifyRequest request){
 
-        return userService.verify(otp);
+        if (request == null){
+            return userService.verify(new VerifyRequest(email, otp));
+        }
+        return userService.verify(request);
     }
 
+    @PostMapping("change-password")
+    @Operation(summary = "change password")
+    public ResponseEntity<ChangePasswordResponse>changePassword(@RequestBody @Valid ChangePasswordRequest changePasswordRequest, HttpServletRequest request){
+        return userService.changePassword(changePasswordRequest, request);
+    }
     @PostMapping("reset-password")
-    public ResponseEntity<ResetPasswordResponse>resetPassword(@RequestBody ResetPasswordRequest resetPasswordRequest){
-        return userService.resetPassword(resetPasswordRequest);
+    @Operation(summary = "reset password")
+    @ResponseStatus(HttpStatus.OK)
+    public void resetPassword(@RequestParam String token, @RequestBody @Valid String newPassword) {
+        userService.resetPassword(token, newPassword);
+    }
+    @PostMapping("forgot-password")
+    @Operation(summary = "forgot password")
+    public ResponseEntity<?> forgotPassword(@RequestBody ForgotPasswordRequest forgotPasswordRequest) throws MessagingException {
+        userService.forgotPassword(forgotPasswordRequest.email());
+        return ResponseEntity.ok().body("Forgot password email sent.");
     }
 
 

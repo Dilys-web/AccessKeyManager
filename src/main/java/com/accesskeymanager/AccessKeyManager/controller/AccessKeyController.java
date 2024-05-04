@@ -1,71 +1,113 @@
 package com.accesskeymanager.AccessKeyManager.controller;
 
 import com.accesskeymanager.AccessKeyManager.DTO.request.AccessKeyDto;
-import com.accesskeymanager.AccessKeyManager.DTO.request.AccessKeyStatusDto;
-import com.accesskeymanager.AccessKeyManager.model.AccessKey;
+import com.accesskeymanager.AccessKeyManager.DTO.response.AccessKeyResponseDto;
+import com.accesskeymanager.AccessKeyManager.Exception.OperationFailedException;
 import com.accesskeymanager.AccessKeyManager.service.AccessKeyService;
-import org.springframework.beans.factory.annotation.Autowired;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
+import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/auth/access-keys")
+@RequestMapping("/api/v1/accesskeys/")
+@AllArgsConstructor
 public class AccessKeyController {
 
-    @Autowired
-    private AccessKeyService accessKeyService;
+    private final AccessKeyService accessKeyService;
 
-//    @GetMapping
-//    public ResponseEntity<List<AccessKey>> getAllAccessKeys() {
-//        List<AccessKey> accessKeys = accessKeyService.getAllAccessKeys();
-//        return new ResponseEntity<>(accessKeys, HttpStatus.OK);
+    @GetMapping("all")
+    @Operation(summary = "For admin getting all access keys generated on the platform")
+    public ResponseEntity<List<AccessKeyDto>> getAllAccessKeys() {
+        List<AccessKeyDto> accessKeys = accessKeyService.getAllAccessKeys();
+        return new ResponseEntity<>(accessKeys, HttpStatus.OK);
+    }
+
+    @GetMapping("request/{schoolId}")
+    @Operation(summary = "For generating access keys")
+    public ResponseEntity<AccessKeyResponseDto> generateAccessKey(@PathVariable("schoolId") Long schoolId) {
+        System.out.println("hiii");
+        // Retrieve authenticated user details
+        UserDetails authentication = getCurrentUser();
+       String userEmail = authentication.getUsername();
+        System.out.println(userEmail);
+        System.out.println("aaaaaaaa");
+
+        try {
+            // Generate the access key for the authenticated user
+            AccessKeyResponseDto createdAccessKey = accessKeyService.generateAccessKey(userEmail,schoolId);
+            return new ResponseEntity<>(createdAccessKey, HttpStatus.CREATED);
+        } catch (Exception e) {
+            e.printStackTrace();
+            // Handle any exceptions that occur during access key generation
+            throw new OperationFailedException(e.getMessage());
+        }
+    }
+
+    @GetMapping("/all/{userId}")
+    @Operation(summary = "Finding the accesskeys for a user")
+    public ResponseEntity<List<AccessKeyDto>> getAllAccessKeysForUser(@PathVariable Long userId){
+        List<AccessKeyDto> accessKeys = accessKeyService.getAllAccessKeysForUser(userId);
+        return new ResponseEntity<>(accessKeys, HttpStatus.OK);
+
+    }
+
+    @GetMapping("active/{schoolEmail}")// when sch email was entered it says sch not found
+    public ResponseEntity<AccessKeyResponseDto> getAccessKeyForSchool(@PathVariable String schoolEmail){
+        return  ResponseEntity.ok(accessKeyService.getAccessKeyForSchool(schoolEmail));
+    }
+    public UserDetails getCurrentUser() {
+        // Get the authentication object from SecurityContextHolder
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        // Check if the authentication object is not null and contains UserDetails
+        if (authentication != null && authentication.getPrincipal() instanceof UserDetails) {
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            // Return the username of the authenticated user
+            return userDetails;
+        } else {
+            // If no user is authenticated, return a default message
+            throw new BadCredentialsException("User not found");
+        }
+    }
+
+    @GetMapping("{keyId}")//: "No static resource api/v1/accesskeys/5."
+    @Operation(summary = "For getting the details of an access key")
+    public ResponseEntity<AccessKeyResponseDto> getAccessKey(@PathVariable Long keyId){
+        return ResponseEntity.ok(accessKeyService.getAccessKey(keyId));
+    }
+//    @DeleteMapping("revoke/{keyid}")
+//    @Operation(summary = "For deleting an access key")// no parameters
+//    public ResponseEntity<Void> revokeAccessKey(@Parameter(description = "key ID", in = ParameterIn.PATH) @PathVariable Long id) {
+//
+//        accessKeyService.revokeAccessKey(id);
+//
+//        return new ResponseEntity<>(HttpStatus.OK);
 //    }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<AccessKey> getAccessKeyById(@PathVariable Long id) {
-        return accessKeyService.getAccessKeyById(id)
-                .map(accessKey -> new ResponseEntity<>(accessKey, HttpStatus.OK))
-                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
-    }
+//    @GetMapping(value = "revoke/{keyid}")
+//    @Operation(summary = "For deleting an access key")// no parameters
+//    public ResponseEntity<Void> revokeAccessKey(@Parameter( required = true, description = "key ID") @PathVariable Long id) {
+//
+//        accessKeyService.revokeAccessKey(id);
+//
+//        return new ResponseEntity<>(HttpStatus.OK);
+//    }
 
-    @PostMapping
-    public ResponseEntity<AccessKeyDto> createAccessKey(@RequestBody AccessKeyDto accessKeyDto) {
-        AccessKeyDto createdAccessKey = accessKeyService.generateAccessKey(accessKeyDto);
-        return new ResponseEntity<>(createdAccessKey, HttpStatus.CREATED);
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<AccessKey> updateAccessKey(@PathVariable Long id, @RequestBody AccessKey accessKey) {
-        if (!accessKeyService.getAccessKeyById(id).isPresent()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        accessKey.setId(id);
-        AccessKey updatedAccessKey = accessKeyService.updateAccessKey(accessKey);
-        return new ResponseEntity<>(updatedAccessKey, HttpStatus.OK);
-    }
-
-    @DeleteMapping("access-keys/{id}")
-    public ResponseEntity<Void> revokeAccessKey(@PathVariable Long id) {
-        Optional<AccessKey> accessKeyOptional = accessKeyService.getAccessKeyById(id);
-        if (accessKeyOptional.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-
-        AccessKey accessKey = accessKeyOptional.get(); // Retrieve the AccessKey object from Optional
-        accessKeyService.revokeAccessKey(accessKey);
-
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
-    public ResponseEntity<AccessKeyStatusDto>checkAccessKeyStatus(@PathVariable String accessKey) {
-        AccessKeyStatusDto statusDto = accessKeyService.checkAccessKeyStatus(accessKey);
-        if (statusDto != null) {
-            return new ResponseEntity<>(statusDto, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+    @DeleteMapping("revoke/{keyId}")//: "No static resource api/v1/accesskeys/5."
+    @Operation(summary = "For deleting the details of an access key")
+    public ResponseEntity<Void> revokeAccessKey(@PathVariable Long keyId){
+        accessKeyService.revokeAccessKey(keyId);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }
 
