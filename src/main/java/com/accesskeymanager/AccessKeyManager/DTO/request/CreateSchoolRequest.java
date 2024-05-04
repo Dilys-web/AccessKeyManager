@@ -1,4 +1,4 @@
-package com.accesskeymanager.AccessKeyManager.DTO;
+package com.accesskeymanager.AccessKeyManager.DTO.request;
 
 import lombok.Data;
 import lombok.Setter;

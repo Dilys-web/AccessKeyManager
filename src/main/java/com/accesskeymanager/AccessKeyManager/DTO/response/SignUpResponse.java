@@ -4,6 +4,10 @@ import com.accesskeymanager.AccessKeyManager.Enum.ResponseConstant;
 
 public record SignUpResponse(
         ResponseConstant status,
-        Long body
+        Long userId,
+
+        Long schoolId
+
+
 ) {
 }

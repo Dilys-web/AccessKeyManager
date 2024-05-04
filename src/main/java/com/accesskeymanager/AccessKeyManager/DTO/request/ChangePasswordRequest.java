@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-public record ResetPasswordRequest(
+public record ChangePasswordRequest(
         @Email(message = "Email not well formatted")
         @NotNull(message = "field required")
         String email,

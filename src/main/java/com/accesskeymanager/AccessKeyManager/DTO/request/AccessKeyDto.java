@@ -6,20 +6,11 @@ import java.time.LocalDate;
 
 public record AccessKeyDto(
         Long id,
+        String accessKey,
+        KeyStatus status,
+        LocalDate dateOfProcurement,
+        LocalDate expiryDate
 
- String user,
- Long userId,
-
- String school,
- Long schoolId,
-
- KeyStatus status,
-
- LocalDate dateOfProcurement,
-
- LocalDate expiryDate,
-
- String accessKey
 ) {
 
 }

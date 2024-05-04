@@ -1,14 +1,11 @@
 package com.accesskeymanager.AccessKeyManager.DTO.request;
 
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-public record VerifyRequest(
+public record RecoverAccountRequest(
+        @Email(message = "Email not well formatted")
         @NotNull(message = "field required")
-        @Email(message = "Email required")
-        String email,
-        int otp
+        String email
 ) {
-
 }
