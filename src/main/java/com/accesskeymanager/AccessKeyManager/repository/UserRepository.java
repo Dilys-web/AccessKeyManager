@@ -12,5 +12,4 @@ public interface UserRepository extends JpaRepository<AppUser, Long> {
     boolean existsByEmail(String email);
     // You can add custom query methods here if needed
 
-    Optional<AppUser>findByOtp(int otp);
 }
