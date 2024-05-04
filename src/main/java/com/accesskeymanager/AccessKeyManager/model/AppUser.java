@@ -3,14 +3,19 @@ package com.accesskeymanager.AccessKeyManager.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
-import lombok.Data;
+import lombok.*;
 
-@Data
+import java.util.Date;
+
 @Entity
-//@Builder
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Table(name = "appUser")
 public class AppUser {
-    // getters and setters
+
     @Id
+    @Column(name = "user_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -23,19 +28,24 @@ public class AppUser {
     private String password;
 
     @ManyToOne()
-    @JoinColumn(name = "school_id")
+    @JoinColumn(name = "school_id", referencedColumnName = "school_id")
     private School school;
-
 
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @Column(name="is_verified")
+    @Column(name = "is_verified")
     private boolean isVerified;
 
-    @Column(name = "otp")
-    private int otp;
-    public AppUser() {
+//    @Temporal(TemporalType.TIMESTAMP)
+//    @Column(name = "created_at", nullable = false, updatable = false)
+//    private Date createdAt;
+//
+//    @PrePersist
+//    protected void onCreate() {
+//        createdAt = new Date();
+//    }
 
-    }
+
+//  "message": "could not execute statement [ERROR: column \"created_at\" of relation \"app_user\" does not exist\n  Position: 23\n  Location: File: parse_target.c, Routine: checkInsertTargets, Line: 1057\n  Server SQLState: 42703] [insert into app_user (created_at,email,is_verified,password,role,school_id) values (?,?,?,?,?,?)]; SQL [insert into app_user (created_at,email,is_verified,password,role,school_id) values (?,?,?,?,?,?)]",
 }

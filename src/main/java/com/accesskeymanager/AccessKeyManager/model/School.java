@@ -1,52 +1,31 @@
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        package com.accesskeymanager.AccessKeyManager.model;
+package com.accesskeymanager.AccessKeyManager.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
-@Setter
+import java.util.ArrayList;
+import java.util.List;
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        @Setter
 @Getter
 @Entity
 public class School {
     // getters and setters
     @Id
+    @Column(name = "school_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotNull(message = "School name cannot be null")
     private String name;
 
     @Column(name = "email_domain")
+    @NotNull(message = "Email cannot be null")
     private String emailDomain;
 
-    // constructors
-    public School() {
-    }
-
-
-    // getters and setters
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getEmailDomain() {
-        return emailDomain;
-    }
-
-    public void setEmailDomain(String emailDomain) {
-        this.emailDomain = emailDomain;
-    }
-
+    @OneToMany(mappedBy = "school", cascade = CascadeType.ALL)
+    private List<AppUser> users = new ArrayList<>();
 }
 
