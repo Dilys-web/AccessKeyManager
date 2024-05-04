@@ -18,7 +18,7 @@ import io.swagger.v3.oas.annotations.servers.Server;
                         url = "accesskeymanager"
 
                 ) ,
-                description = "generating keys for schools",
+                description = "Generating keys for schools",
                 title = "API DOCUMENTATION",
                 version = "0.0.0",
                 license = @License(

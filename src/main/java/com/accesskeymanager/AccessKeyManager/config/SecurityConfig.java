@@ -30,7 +30,6 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        System.out.println("happy");
         http
                 // .cors(withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
@@ -45,9 +44,18 @@ public class SecurityConfig {
                                         "/v3/api-docs/**",
                                         "/api/v1/docs/**",
                                         "/api/v1/docs.yaml"
+//                                        "api/v1/key/access-keys/request/{schoolId}"
 
 
                                 ).permitAll()
+//                                .requestMatchers(
+//                                        "api/v1/key/access-keys/request/{schoolId}",
+//                                        ""
+//                                ).hasRole(("ROLE_SCHOOL_IT_PERSONNEL"))
+//                                .requestMatchers(
+//                                        "api/v1/accesskeys/all",
+//                                        "api/v1/accesskeys/revoke",
+//                                ).hasRole(("ROLE_ADMIN"))
                                 .anyRequest()
                                 .authenticated()
                 )
