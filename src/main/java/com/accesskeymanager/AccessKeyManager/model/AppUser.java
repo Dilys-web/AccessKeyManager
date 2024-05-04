@@ -7,6 +7,7 @@ import lombok.Data;
 
 @Data
 @Entity
+//@Builder
 public class AppUser {
     // getters and setters
     @Id
@@ -15,6 +16,7 @@ public class AppUser {
 
     @NotNull(message = "Email cannot be null")
     @Email(message = "Enter a valid email")
+    @Column(unique = true)
     private String email;
 
     @NotNull(message = "Password cannot be empty")
@@ -27,4 +29,13 @@ public class AppUser {
 
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    @Column(name="is_verified")
+    private boolean isVerified;
+
+    @Column(name = "otp")
+    private int otp;
+    public AppUser() {
+
+    }
 }

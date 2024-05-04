@@ -1,19 +1,18 @@
 package com.accesskeymanager.AccessKeyManager.Email;
 
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
+
 import java.util.Properties;
 
-@Configuration
+//@Configuration
 public class MailConfig {
 
-    @Bean
+    //@Bean
     public JavaMailSender javaMailSender() {
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
-        mailSender.setHost("your.mail.host.com");
+        mailSender.setHost("smtp.gmail.com");
         mailSender.setPort(587); // or your mail server's port
         mailSender.setUsername("opokudonkord@gmail");
         mailSender.setPassword("lckjmiwmimtxpkgi");

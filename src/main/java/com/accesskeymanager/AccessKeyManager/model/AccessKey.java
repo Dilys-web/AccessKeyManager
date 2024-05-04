@@ -2,10 +2,8 @@ package com.accesskeymanager.AccessKeyManager.model;
 
 import com.accesskeymanager.AccessKeyManager.Enum.KeyStatus;
 import jakarta.persistence.*;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
@@ -26,6 +24,8 @@ public class AccessKey {
     @JoinColumn(name = "school_id")
     private School school;
 
+    @Column(name = "key_status")
+    @Enumerated(EnumType.STRING)
     private KeyStatus status;
 
     @Column(name = "date_of_procurement")
@@ -34,6 +34,8 @@ public class AccessKey {
     @Column(name = "expiry_date")
     private LocalDate expiryDate;
 
+    @Column(name = "access_key")
+    private String accessKey;
     // constructors
     public AccessKey() {
     }

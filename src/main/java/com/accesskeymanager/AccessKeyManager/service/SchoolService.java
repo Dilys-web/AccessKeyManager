@@ -29,7 +29,7 @@ import java.util.Optional;
         }
 
         public Optional<School> findByEmailDomain(String emailDomain) {
-            return Optional.ofNullable(schoolRepository.findByEmailDomain(emailDomain));
+            return schoolRepository.findByEmailDomain(emailDomain);
         }
         public Optional<School> findById(Long id) {
             return schoolRepository.findById(id);

@@ -28,22 +28,30 @@ public class SecurityConfig {
     private final Environment environment;
 
 
-
-
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
-
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        System.out.println("happy");
         http
-               // .cors(withDefaults())
+                // .cors(withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request ->
                         request.requestMatchers(
-                                        "/auth/**" // authorize all the methods that are in this resource
+                                        "api/v1/auth/**", // authorize all the methods that are in this resource"
+                                        "/schools/**",
+                                        "/swagger-ui/**",
+                                        "/swagger-ui.html",
+                                        "/swagger-ui/swagger-config",
+                                        "/swagger-ui/index.html",
+                                        "/v3/api-docs/**",
+                                        "/api/v1/docs/**",
+                                        "/api/v1/docs.yaml"
+
+
                                 ).permitAll()
                                 .anyRequest()
                                 .authenticated()
                 )
-                 //the '"STATELESS"' means that, spring should not store the session state in its context
+                //the '"STATELESS"' means that, spring should not store the session state in its context
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);

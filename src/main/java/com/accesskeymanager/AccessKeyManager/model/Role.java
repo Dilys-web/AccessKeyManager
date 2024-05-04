@@ -1,6 +1,6 @@
 package com.accesskeymanager.AccessKeyManager.model;
 
 public enum Role {
-    SCHOOL_IT_PERSONNEL;
-   // ADMIN
+    SCHOOL_IT_PERSONNEL,
+    ADMIN;
 }
