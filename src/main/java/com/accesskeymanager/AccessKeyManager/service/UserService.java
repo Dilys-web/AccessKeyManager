@@ -1,22 +1,21 @@
 package com.accesskeymanager.AccessKeyManager.service;
 
-import com.accesskeymanager.AccessKeyManager.DTO.request.AccessKeyDto;
-import com.accesskeymanager.AccessKeyManager.DTO.request.ResetPasswordRequest;
-import com.accesskeymanager.AccessKeyManager.DTO.request.SignInRequest;
-import com.accesskeymanager.AccessKeyManager.DTO.request.SignUpRequest;
-import com.accesskeymanager.AccessKeyManager.DTO.response.ResetPasswordResponse;
+import com.accesskeymanager.AccessKeyManager.DTO.request.*;
+import com.accesskeymanager.AccessKeyManager.DTO.response.ChangePasswordResponse;
 import com.accesskeymanager.AccessKeyManager.DTO.response.SignInResponse;
 import com.accesskeymanager.AccessKeyManager.DTO.response.SignUpResponse;
 import com.accesskeymanager.AccessKeyManager.DTO.response.VerifyResponse;
 import com.accesskeymanager.AccessKeyManager.Email.EmailService;
-import com.accesskeymanager.AccessKeyManager.Enum.ResponseConstant;
 import com.accesskeymanager.AccessKeyManager.Exception.EmailFailedException;
 import com.accesskeymanager.AccessKeyManager.Exception.UserNotVerifiedException;
 import com.accesskeymanager.AccessKeyManager.config.JwtService;
 import com.accesskeymanager.AccessKeyManager.model.AppUser;
 import com.accesskeymanager.AccessKeyManager.model.School;
+import com.accesskeymanager.AccessKeyManager.model.Token;
 import com.accesskeymanager.AccessKeyManager.repository.SchoolRepository;
+import com.accesskeymanager.AccessKeyManager.repository.TokenRepository;
 import com.accesskeymanager.AccessKeyManager.repository.UserRepository;
+import jakarta.mail.MessagingException;
 import jakarta.persistence.EntityExistsException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -25,10 +24,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -43,11 +45,13 @@ public class UserService {
     private final JwtService jwtService;
     private final OTPService otpService;
 
-    private  final EmailService emailService;
-    private final AccessKeyService accessKeyService;
+    private final EmailService emailService;
+    private final SchoolService schoolService;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final SchoolRepository schoolRepository;
+    private final TokenRepository tokenRepository;
+
 
     public ResponseEntity<SignInResponse> authenticate(SignInRequest request) {
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(request.email(), request.password());
@@ -66,34 +70,45 @@ public class UserService {
     }
 
     public ResponseEntity<SignUpResponse> register(SignUpRequest signUpRequest, HttpServletRequest request) {
-
         if (userRepository.existsByEmail(signUpRequest.email())) {
             throw new EntityExistsException("User already exists");
         }
-        Optional<School> school = schoolRepository.findByEmailDomain(signUpRequest.schoolEmail());
-        AppUser user = null;
-//        if (school.isEmpty())
-//
-////        AppUser user = AppUser.builder()
-////                .email(signUpRequest.email())
-////                .password(signUpRequest.password())
-////                .school(school)
-////                .role(signUpRequest.role())
-////                .build();
-//        {
-//        }
 
-        int otp = otpService.generateOtp();
-        user = new AppUser();
+        School school = createSchool(signUpRequest);
+
+        AppUser user = new AppUser();
         user.setEmail(signUpRequest.email());
         user.setPassword(passwordEncoder.encode(signUpRequest.password()));
-        user.setSchool(school.orElse(null));
+        user.setSchool(school);
         user.setRole(signUpRequest.role());
-        user.setOtp(otp);
         AppUser appUser = userRepository.save(user);
 
+        int otp = otpService.generateOtp(String.valueOf(appUser.getId()));
 
-        CompletableFuture<Boolean> otpFuture = otpService.sendOtp(appUser.getEmail(), otp);
+        sendOtp(request, appUser, otp);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(new SignUpResponse(SUCCESS, appUser.getId(), school.getId()));
+
+    }
+
+    private School createSchool(SignUpRequest signUpRequest) {
+        Optional<School> schoolFromDB = schoolRepository.findByEmailDomain(signUpRequest.schoolEmail());
+        School school;
+        if (schoolFromDB.isEmpty()) {
+            School newSchool = new School();
+            newSchool.setEmailDomain(signUpRequest.schoolEmail());
+            newSchool.setName(signUpRequest.schoolName());
+            school = schoolRepository.save(newSchool);
+        } else {
+            school = schoolFromDB.get();
+        }
+        return school;
+    }
+
+    private void sendOtp(HttpServletRequest request, AppUser appUser, int otp) {
+        String verifyUrl = "http://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath();
+        System.out.println(verifyUrl);
+        CompletableFuture<Boolean> otpFuture = otpService.sendOtp(appUser.getEmail(), otp, verifyUrl);
         try {
             boolean isOtpSent = otpFuture.get();
             if (!isOtpSent) {
@@ -104,111 +119,82 @@ public class UserService {
             Thread.currentThread().interrupt();
             throw new EmailFailedException(e.getMessage(), e);
         }
-
-
-        String verifyUrl = "http://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath();
-        System.out.println(verifyUrl);
-        String msg = "Click on the link below to verify your email address \n";
-        msg += verifyUrl + "/api/v1/auth/verify-email?otp=" + otp;
-        emailService.sendEmail(signUpRequest.email(), msg, "Email Verification");
-        return ResponseEntity.status(HttpStatus.CREATED).body(new SignUpResponse(SUCCESS, appUser.getId()));
-
     }
 
-    // after user is verified access key should be generated
 
-    public ResponseEntity<VerifyResponse>verify(int otp) {
-        Optional<AppUser> optionalUser = userRepository.findByOtp(otp);
+    public ResponseEntity<VerifyResponse> verify(VerifyRequest request) {
+        Optional<AppUser> optionalUser = userRepository.findByEmail(request.email());
         if (optionalUser.isEmpty()) {
             return ResponseEntity.badRequest().body(new VerifyResponse(ERROR, "User not found"));
         }
         AppUser user = optionalUser.get();
+        int otpFromCache = otpService.generateOtp(String.valueOf(user.getId()));
+        if (otpFromCache != request.otp()) {
+            return ResponseEntity.badRequest().body(new VerifyResponse(ERROR, "Wrong Otp"));
+
+        }
+
         user.setVerified(true);
         userRepository.save(user);
 
-        // Generate Access Key
-        AccessKeyDto AccessKeyDto = new AccessKeyDto(
-                user.getId(),
-                user.getEmail(),
-                user.getSchool().getId(),
-                user.getSchool().getName(),
-                user.getSchool().getId(),
-                user.getRole(),
-                user.getExpiryDate(),
-                user.getAccessKey()
-        );
+        return ResponseEntity.ok(new VerifyResponse(SUCCESS, "OTP verification successful."));
 
-        AccessKeyService accessKeyService = new AccessKeyService();
-        AccessKeyDto generatedAccessKey = accessKeyService.generateAccessKey(AccessKeyDto);
-
-        return ResponseEntity.ok(new VerifyResponse(SUCCESS, "OTP verification successful. Access key generated: " + generatedAccessKey.getAccessKey()));
-    }
-//        accessKeyDto.setUserId(user.getId());
-//        accessKeyDto.userId()
-//      AppUser user1 =   userRepository.getById(user.getId());
-//
-//        AccessKeyDto accssKeyDto = new AccessKeyDto(user1.getId(),user1.getUser().getEmail(),user.getUser().getId(), access.getSchool().getName(), access.getSchool().getId(),
-//                user.getStatus(), user.getDateOfProcurement(), access.getExpiryDate(), access.getAccessKey());
-//
-//
-//        AccessKeyService accessKeyService =  new AccessKeyService();
-//        accessKeyService.generateAccessKey(accssKeyDto);
-//        if (request.otp() != otp) {
-//            throw new InvalidOtpException("Invalid OTP");
-//        }
-    
     }
 
-          public ResponseEntity<ResetPasswordResponse> resetPassword(ResetPasswordRequest resetPasswordRequest) {
-         // Retrieve the user by email
-            Optional<AppUser> optionalUser = userRepository.findByEmail(resetPasswordRequest.email());
+    public ResponseEntity<ChangePasswordResponse> changePassword(ChangePasswordRequest changePasswordRequest, HttpServletRequest request) {
+        // Retrieve the user by email
+        Optional<AppUser> optionalUser = userRepository.findByEmail(changePasswordRequest.email());
 
-            if (optionalUser.isEmpty()) {
-                // If user not found, return error response
-                return ResponseEntity.badRequest().body(new ResetPasswordResponse("User not found"));
-            }
-
-            AppUser user = optionalUser.get();
-
-            // Update the user's password
-            ((AppUser) user).setPassword(resetPasswordRequest.newPassword());
-            userRepository.save(user);
-
-             //Return success response
-            return ResponseEntity.ok(new ResetPasswordResponse("Password reset successful"));
+        if (optionalUser.isEmpty()) {
+            // If user not found, return error response
+            return ResponseEntity.badRequest().body(new ChangePasswordResponse("User not found"));
         }
 
+        AppUser user = optionalUser.get();
+        if (!passwordEncoder.matches(changePasswordRequest.oldPassword(), user.getPassword())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ChangePasswordResponse("Your password doesn't match what we have"));
+        }
+
+        // Update the user's password
+        user.setPassword(changePasswordRequest.newPassword());
 
 
-//    public ResponseEntity<ResetPasswordResponse> resetPassword(@RequestBody ResetPasswordRequest resetPasswordRequest) {
-//        // Validate request
-//        if (resetPasswordRequest.getEmail() == null) {
-//            return ResponseEntity.badRequest().body("Email is required.");
-//        }
-//
-//        // Check if user exists
-//        Optional<AppUser> user = userService.findByEmail(resetPasswordRequest.getEmail());
-//        if (user.isPresent()) {
-//            // Reset password logic here
-//            return ResponseEntity.ok("Password reset instructions sent to your email.");
-//        } else {
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
-//        }
+        userRepository.save(user);
+
+        String msg = "Your password has been changed \n";
+        emailService.sendEmail(changePasswordRequest.email(), msg, "Password Changed");
+        return ResponseEntity.status(HttpStatus.CREATED).body(new ChangePasswordResponse(user.getPassword()));
+    }
+
+    public void resetPassword(String token, String newPassword) {
+        Token resetToken = tokenRepository.findByToken(token)
+                .orElseThrow(() -> new RuntimeException("Invalid token"));
+        if (LocalDateTime.now().isAfter(resetToken.getExpiresAt())) {
+            throw new RuntimeException("Token has expired");
+        }
+
+        AppUser user = resetToken.getUser();
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+
+        // Optionally, invalidate the token after use
+        tokenRepository.delete(resetToken);
+    }
+
+    public void forgotPassword(String email) throws MessagingException {
+        AppUser user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with the email: " + email));
+        String token = UUID.randomUUID().toString();
+        Token resetToken = Token.builder()
+                .token(token)
+                .createdAt(LocalDateTime.now())
+                .expiresAt(LocalDateTime.now().plusMinutes(30)) //Token expires in 30minutes
+                .user(user)
+                .build();
+        tokenRepository.save(resetToken);
+        emailService.sendPasswordResetEmail(user.getEmail(), "http://localhost:8080/activate-account" + "?token=" + token);
+
+    }
 
 
-
-//    create a verify method:
-//    create response and request dtos for it
-//    get the otp from the cache using the same code at line 68
-//    compare it to the one in the request, if they are the same return ResponseEntity.ok()
-//    If they are not the same throw an exception for it
-
-//    public Optional<AppUser> findByEmail(String email) {
-//
-//        return userRepository.findByEmail(email);
-//    }
-
-
-
-
-
+}
