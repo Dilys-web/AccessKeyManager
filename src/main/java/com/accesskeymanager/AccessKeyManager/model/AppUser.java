@@ -4,7 +4,11 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -34,17 +38,24 @@ public class AppUser {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @Column(name = "is_verified")
+//    @Column(name = "is_verified")
     private boolean isVerified;
 
 //    @Temporal(TemporalType.TIMESTAMP)
 //    @Column(name = "created_at", nullable = false, updatable = false)
 //    private Date createdAt;
 //
-//    @PrePersist
-//    protected void onCreate() {
-//        createdAt = new Date();
-//    }
+//
+//    @UpdateTimestamp
+//    @Column(name = "updated_at")
+//    private Date updatedAt;
+    @CreationTimestamp
+    @Column(updatable = false, name = "created_at")
+    private Date createdAt;
+
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    private Date updatedAt;
 
 
 //  "message": "could not execute statement [ERROR: column \"created_at\" of relation \"app_user\" does not exist\n  Position: 23\n  Location: File: parse_target.c, Routine: checkInsertTargets, Line: 1057\n  Server SQLState: 42703] [insert into app_user (created_at,email,is_verified,password,role,school_id) values (?,?,?,?,?,?)]; SQL [insert into app_user (created_at,email,is_verified,password,role,school_id) values (?,?,?,?,?,?)]",

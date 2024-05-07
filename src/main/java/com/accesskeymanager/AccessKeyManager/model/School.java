@@ -21,7 +21,7 @@ public class School {
     @NotNull(message = "School name cannot be null")
     private String name;
 
-    @Column(name = "email_domain")
+    @Column(name = "email_domain", unique = true)
     @NotNull(message = "Email cannot be null")
     private String emailDomain;
 
