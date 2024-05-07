@@ -48,14 +48,22 @@ public class SecurityConfig {
 
 
                                 ).permitAll()
-//                                .requestMatchers(
-//                                        "api/v1/key/access-keys/request/{schoolId}",
-//                                        ""
-//                                ).hasRole(("ROLE_SCHOOL_IT_PERSONNEL"))
-//                                .requestMatchers(
-//                                        "api/v1/accesskeys/all",
-//                                        "api/v1/accesskeys/revoke",
-//                                ).hasRole(("ROLE_ADMIN"))
+                                .requestMatchers(
+                                        "api/v1/auth/signup",
+                                        "api/v1/auth/reset-password",
+                                        "api/v1/auth/login",
+                                        "api/v1/auth/forgot-password",
+                                        "api/v1/auth/change-password",
+                                        "api/v1/auth/verify-email",
+                                        "api/v1/key/access-keys/request/{schoolId}",
+                                        "api/v1/key/access-keys/request/{userId}"
+                                ).hasRole(("SCHOOL_IT_PERSONNEL"))
+                                .requestMatchers(
+                                        "api/v1/auth/login",
+                                        "api/v1/accesskeys/all",
+                                        "api/v1/accesskeys/revoke",
+                                        "api/v1/accesskeys/active/{schoolEmail}"
+                                ).hasRole(("ADMIN"))
                                 .anyRequest()
                                 .authenticated()
                 )
@@ -66,17 +74,17 @@ public class SecurityConfig {
         return http.build();
     }
 
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        CorsConfiguration config = new CorsConfiguration();
-        config.addAllowedHeader("*");
-        config.addAllowedMethod("*");
-        config.addAllowedOrigin(Boolean.TRUE.equals(configConstants.debug) ? "*" : environment.getProperty("ALLOWED_ORIGINS"));
-        config.setAllowCredentials(true);
-        source.registerCorsConfiguration("/**", config);
-        return source;
-    }
+//    @Bean
+//    public CorsConfigurationSource corsConfigurationSource() {
+//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+//        CorsConfiguration config = new CorsConfiguration();
+//        config.addAllowedHeader("*");
+//        config.addAllowedMethod("*");
+//        config.addAllowedOrigin(Boolean.TRUE.equals(configConstants.debug) ? "*" : environment.getProperty("ALLOWED_ORIGINS"));
+//        config.setAllowCredentials(true);
+//        source.registerCorsConfiguration("/**", config);
+//        return source;
+//    }
 
 
 }
