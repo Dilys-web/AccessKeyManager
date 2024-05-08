@@ -48,13 +48,12 @@ The objective of the Access Key Manager project is to build a web application th
 
 ## Technologies Used
 
-- **Frontend**: HTML, CSS, JavaScript (React, Angular, etc.)
 - **Backend**: Java (Spring Boot)
 - **Database**: Postgres
 
 ## Getting Started
 
 1. Clone the repository from GitHub.
-2. Set up the backend server and database according to the provided ER diagram.
+2. Set up the backend server and database.
 3. Install dependencies and run the frontend application.
 4. Access the application through the provided deployed link.
