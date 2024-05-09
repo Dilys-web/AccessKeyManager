@@ -1,0 +1,37 @@
+name: Build and Deploy
+on:
+  push:
+    branches:
+      - dev  # Adjust the branch name as needed
+      - dev2
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # Step 1: Install SSH key to access EC2 instance securely
+      - name: Install SSH key
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_SECRETS }}
+
+      # Step 2: SSH into EC2 instance and build Maven project
+      - name: SSH into EC2 instance and build Maven project
+        run: |
+          ssh -o StrictHostKeyChecking=no -i /tmp/private_key.pem ec2-user@${{ secrets.EC2_PUBLIC_IP }} 'cd AccessKeyManager/ &&
+            sudo yum install -y maven &&
+            mvn clean package -DskipTests'
+
+      # Step 3: Check directory contents
+      - name: Check directory contents
+        run: |
+          ssh -o StrictHostKeyChecking=no -i /tmp/private_key.pem ec2-user@${{ secrets.EC2_PUBLIC_IP }} 'cd AccessKeyManager/ &&
+            ls -la target'
+
+      # Step 4: SSH into EC2 instance and deploy application
+      - name: SSH into EC2 instance and deploy
+        run: |
+          ssh -o StrictHostKeyChecking=no -i /tmp/private_key.pem ec2-user@${{ secrets.EC2_PUBLIC_IP }} 'cd AccessKeyManager/ &&
+            git pull &&
+            docker-compose up --build -d'
