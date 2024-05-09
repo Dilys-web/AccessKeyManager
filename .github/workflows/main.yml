@@ -44,4 +44,4 @@ jobs:
           # Pull the latest changes from the Git repository
           git pull &&
           # Build and run Docker containers using Docker Compose
-          docker-compose up -d'
+          docker-compose up --build -d'
