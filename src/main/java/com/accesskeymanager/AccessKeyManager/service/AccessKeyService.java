@@ -1,6 +1,7 @@
  package com.accesskeymanager.AccessKeyManager.service;
 
  import com.accesskeymanager.AccessKeyManager.DTO.request.AccessKeyDto;
+ import com.accesskeymanager.AccessKeyManager.DTO.request.AccessKeySchoolDto;
  import com.accesskeymanager.AccessKeyManager.DTO.response.AccessKeyResponseDto;
  import com.accesskeymanager.AccessKeyManager.Enum.KeyStatus;
  import com.accesskeymanager.AccessKeyManager.Exception.OperationFailedException;
@@ -114,20 +115,20 @@
          );
      }
 
-     public List<AccessKeyDto> getAllAccessKeys() {
+     public List<AccessKeySchoolDto> getAllAccessKeys() {
          List<AccessKey> accessKeys = accessKeyRepository.findAll();
          return accessKeys.stream()
                  .map(this::generateDtoFromAccessKey)
                  .collect(Collectors.toList());
      }
-     private AccessKeyDto generateDtoFromAccessKey(AccessKey accessKey) {
-         return new AccessKeyDto(
+     private AccessKeySchoolDto generateDtoFromAccessKey(AccessKey accessKey) {
+         return new AccessKeySchoolDto(
                  accessKey.getId(),
                  accessKey.getAccessKey(),
                  accessKey.getStatus(),
                  accessKey.getDateOfProcurement(),
-                 accessKey.getExpiryDate()
-
+                 accessKey.getExpiryDate(),
+                 accessKey.getSchool().getName()
          );
      }
      public List<AccessKeyDto> getAllAccessKeysForUser(Long userId){

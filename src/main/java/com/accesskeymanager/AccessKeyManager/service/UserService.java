@@ -1,5 +1,6 @@
 package com.accesskeymanager.AccessKeyManager.service;
 
+import com.accesskeymanager.AccessKeyManager.DTO.request.ResetPasswordRequest;
 import com.accesskeymanager.AccessKeyManager.DTO.request.*;
 import com.accesskeymanager.AccessKeyManager.DTO.response.ChangePasswordResponse;
 import com.accesskeymanager.AccessKeyManager.DTO.response.SignInResponse;
@@ -150,6 +151,10 @@ public class UserService {
     }
 
     public ResponseEntity<ChangePasswordResponse> changePassword(ChangePasswordRequest changePasswordRequest, HttpServletRequest request) {
+
+        if (changePasswordRequest.oldPassword().equals(changePasswordRequest.newPassword())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ChangePasswordResponse("Your password is the same"));
+        }
         // Retrieve the user by email
         Optional<AppUser> optionalUser = userRepository.findByEmail(changePasswordRequest.email());
 
@@ -160,7 +165,7 @@ public class UserService {
 
         AppUser user = optionalUser.get();
         if (!passwordEncoder.matches(changePasswordRequest.oldPassword(), user.getPassword())) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ChangePasswordResponse("Your password doesn't match what we have"));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ChangePasswordResponse("Your password doesn't match what we have"));
         }
 
         // Update the user's password
@@ -174,7 +179,7 @@ public class UserService {
         return ResponseEntity.status(HttpStatus.CREATED).body(new ChangePasswordResponse(user.getPassword()));
     }
 
-    public void resetPassword(String token, String newPassword) {
+    public void resetPassword(String token, ResetPasswordRequest password) {
         Token resetToken = tokenRepository.findByToken(token)
                 .orElseThrow(() -> new RuntimeException("Invalid token"));
         if (LocalDateTime.now().isAfter(resetToken.getExpiresAt())) {
@@ -182,7 +187,7 @@ public class UserService {
         }
 
         AppUser user = resetToken.getUser();
-        user.setPassword(passwordEncoder.encode(newPassword));
+        user.setPassword(passwordEncoder.encode(password.newPassword()));
         userRepository.save(user);
 
         // Optionally, invalidate the token after use
