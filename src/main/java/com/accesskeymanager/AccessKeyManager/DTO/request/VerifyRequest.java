@@ -8,7 +8,7 @@ public record VerifyRequest(
         @NotNull(message = "field required")
         @Email(message = "Email required")
         String email,
-        int otp
+        String otp
 ) {
 
 }

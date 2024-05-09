@@ -10,6 +10,7 @@ import com.accesskeymanager.AccessKeyManager.Exception.EmailFailedException;
 import com.accesskeymanager.AccessKeyManager.Exception.UserNotVerifiedException;
 import com.accesskeymanager.AccessKeyManager.config.JwtService;
 import com.accesskeymanager.AccessKeyManager.model.AppUser;
+import com.accesskeymanager.AccessKeyManager.model.Role;
 import com.accesskeymanager.AccessKeyManager.model.School;
 import com.accesskeymanager.AccessKeyManager.model.Token;
 import com.accesskeymanager.AccessKeyManager.repository.SchoolRepository;
@@ -80,11 +81,9 @@ public class UserService {
         user.setEmail(signUpRequest.email());
         user.setPassword(passwordEncoder.encode(signUpRequest.password()));
         user.setSchool(school);
-        user.setRole(signUpRequest.role());
+        user.setRole(Role.SCHOOL_IT_PERSONNEL);
         AppUser appUser = userRepository.save(user);
-
-        int otp = otpService.generateOtp(String.valueOf(appUser.getId()));
-
+        String otp = String.valueOf(otpService.generateOtp(String.valueOf(appUser.getId())));
         sendOtp(request, appUser, otp);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(new SignUpResponse(SUCCESS, appUser.getId(), school.getId()));
@@ -92,11 +91,11 @@ public class UserService {
     }
 
     private School createSchool(SignUpRequest signUpRequest) {
-        Optional<School> schoolFromDB = schoolRepository.findByEmailDomain(signUpRequest.schoolEmail());
+        Optional<School> schoolFromDB = schoolRepository.findByEmailDomain(signUpRequest.email());
         School school;
         if (schoolFromDB.isEmpty()) {
             School newSchool = new School();
-            newSchool.setEmailDomain(signUpRequest.schoolEmail());
+            newSchool.setEmailDomain(signUpRequest.email());
             newSchool.setName(signUpRequest.schoolName());
             school = schoolRepository.save(newSchool);
         } else {
@@ -105,10 +104,10 @@ public class UserService {
         return school;
     }
 
-    private void sendOtp(HttpServletRequest request, AppUser appUser, int otp) {
+    private void sendOtp(HttpServletRequest request, AppUser appUser, String otp) {
         String verifyUrl = "http://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath();
         System.out.println(verifyUrl);
-        CompletableFuture<Boolean> otpFuture = otpService.sendOtp(appUser.getEmail(), otp, verifyUrl);
+        CompletableFuture<Boolean> otpFuture = otpService.sendOtp(appUser.getEmail(), otp);
         try {
             boolean isOtpSent = otpFuture.get();
             if (!isOtpSent) {
@@ -128,14 +127,19 @@ public class UserService {
             return ResponseEntity.badRequest().body(new VerifyResponse(ERROR, "User not found"));
         }
         AppUser user = optionalUser.get();
-        int otpFromCache = otpService.generateOtp(String.valueOf(user.getId()));
-        if (otpFromCache != request.otp()) {
+
+        String otpFromCache = String.valueOf(otpService.generateOtp(String.valueOf(user.getId())));
+
+        if (!otpFromCache.equals(request.otp()) ) {
+            System.out.println(otpFromCache);
+            System.out.println(request.otp());
             return ResponseEntity.badRequest().body(new VerifyResponse(ERROR, "Wrong Otp"));
 
         }
 
         user.setVerified(true);
         userRepository.save(user);
+        otpService.removeOtp(String.valueOf(user.getId()));
 
         return ResponseEntity.ok(new VerifyResponse(SUCCESS, "OTP verification successful."));
 
@@ -193,7 +197,6 @@ public class UserService {
                 .build();
         tokenRepository.save(resetToken);
         emailService.sendPasswordResetEmail(user.getEmail(), "http://localhost:8080/activate-account" + "?token=" + token);
-
     }
 
 

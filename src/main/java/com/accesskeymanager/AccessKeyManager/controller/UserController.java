@@ -12,14 +12,16 @@ import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Objects;
+
 @RestController
 @RequestMapping("/api/v1/auth/")
 @AllArgsConstructor
-
 public class UserController {
     private  final UserService userService;
 
@@ -36,12 +38,8 @@ public class UserController {
     }
     @GetMapping("verify-email")
     @Operation(summary = "user verification")
-    public ResponseEntity<VerifyResponse>verify(@RequestParam(value = "otp", required = false)  Integer otp, @RequestParam(value = "email", required = false)  String email, @RequestBody(required = false) VerifyRequest request){
-
-        if (request == null){
-            return userService.verify(new VerifyRequest(email, otp));
-        }
-        return userService.verify(request);
+    public ResponseEntity<VerifyResponse>verify(@RequestParam(value = "otp", required = false)  String otp, @RequestParam(value = "email", required = false)  String email, @RequestBody(required = false) VerifyRequest request){
+        return userService.verify(Objects.requireNonNullElseGet(request, () -> new VerifyRequest(email, otp)));
     }
 
     @PostMapping("change-password")

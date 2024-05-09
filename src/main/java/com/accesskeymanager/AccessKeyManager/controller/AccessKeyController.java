@@ -32,6 +32,11 @@ public class AccessKeyController {
         return new ResponseEntity<>(accessKeys, HttpStatus.OK);
     }
 
+    @GetMapping("/test")
+    public ResponseEntity<String> test(){
+            return ResponseEntity.ok("Test");
+        }
+
     @GetMapping("request/{schoolId}")
     @Operation(summary = "For generating access keys")
     public ResponseEntity<AccessKeyResponseDto> generateAccessKey(@PathVariable("schoolId") Long schoolId) {
