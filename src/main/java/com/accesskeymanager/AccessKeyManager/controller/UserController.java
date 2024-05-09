@@ -1,6 +1,7 @@
 package com.accesskeymanager.AccessKeyManager.controller;
 
 
+import com.accesskeymanager.AccessKeyManager.DTO.request.ResetPasswordRequest;
 import com.accesskeymanager.AccessKeyManager.DTO.request.*;
 import com.accesskeymanager.AccessKeyManager.DTO.response.ChangePasswordResponse;
 import com.accesskeymanager.AccessKeyManager.DTO.response.SignInResponse;
@@ -12,12 +13,9 @@ import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/v1/auth/")
@@ -36,11 +34,20 @@ public class UserController {
     public ResponseEntity<SignInResponse> login(@RequestBody @Valid SignInRequest signInRequest) {
         return userService.authenticate(signInRequest);
     }
+//    @GetMapping("verify-email")
+//    @Operation(summary = "user verification")
+//    public ResponseEntity<VerifyResponse>verify(@RequestParam(value = "otp", required = false)  String otp, @RequestParam(value = "email", required = false)  String email, @RequestBody(required = false) VerifyRequest request){
+//        return userService.verify(Objects.requireNonNullElseGet(request, () -> new VerifyRequest(email, otp)));
+//    }
+
     @GetMapping("verify-email")
     @Operation(summary = "user verification")
-    public ResponseEntity<VerifyResponse>verify(@RequestParam(value = "otp", required = false)  String otp, @RequestParam(value = "email", required = false)  String email, @RequestBody(required = false) VerifyRequest request){
-        return userService.verify(Objects.requireNonNullElseGet(request, () -> new VerifyRequest(email, otp)));
+    public ResponseEntity<VerifyResponse>verify(@ModelAttribute VerifyRequest request ){
+        return userService.verify(request);
     }
+
+
+
 
     @PostMapping("change-password")
     @Operation(summary = "change password")
@@ -50,7 +57,7 @@ public class UserController {
     @PostMapping("reset-password")
     @Operation(summary = "reset password")
     @ResponseStatus(HttpStatus.OK)
-    public void resetPassword(@RequestParam String token, @RequestBody @Valid String newPassword) {
+    public void resetPassword(@RequestParam String token, @RequestBody @Valid ResetPasswordRequest newPassword) {
         userService.resetPassword(token, newPassword);
     }
     @PostMapping("forgot-password")

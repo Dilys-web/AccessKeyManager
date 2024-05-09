@@ -1,6 +1,7 @@
 package com.accesskeymanager.AccessKeyManager.controller;
 
 import com.accesskeymanager.AccessKeyManager.DTO.request.AccessKeyDto;
+import com.accesskeymanager.AccessKeyManager.DTO.request.AccessKeySchoolDto;
 import com.accesskeymanager.AccessKeyManager.DTO.response.AccessKeyResponseDto;
 import com.accesskeymanager.AccessKeyManager.Exception.OperationFailedException;
 import com.accesskeymanager.AccessKeyManager.service.AccessKeyService;
@@ -27,8 +28,8 @@ public class AccessKeyController {
 
     @GetMapping("all")
     @Operation(summary = "For admin getting all access keys generated on the platform")
-    public ResponseEntity<List<AccessKeyDto>> getAllAccessKeys() {
-        List<AccessKeyDto> accessKeys = accessKeyService.getAllAccessKeys();
+    public ResponseEntity<List<AccessKeySchoolDto>> getAllAccessKeys() {
+        List<AccessKeySchoolDto> accessKeys = accessKeyService.getAllAccessKeys();
         return new ResponseEntity<>(accessKeys, HttpStatus.OK);
     }
 
@@ -58,7 +59,7 @@ public class AccessKeyController {
         }
     }
 
-    @GetMapping("/all/{userId}")
+    @GetMapping("all/{userId}")
     @Operation(summary = "Finding the accesskeys for a user")
     public ResponseEntity<List<AccessKeyDto>> getAllAccessKeysForUser(@PathVariable Long userId){
         List<AccessKeyDto> accessKeys = accessKeyService.getAllAccessKeysForUser(userId);
