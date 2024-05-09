@@ -20,7 +20,7 @@ jobs:
       - name: SSH into EC2 instance and build Maven project
         run: |
           ssh -o StrictHostKeyChecking=no -i /tmp/private_key.pem ec2-user@${{ secrets.EC2_PUBLIC_IP }} 'cd AccessKeyManager/ &&
-            sudo rpm --import https://yum.corretto.aws/corretto.key && sudo curl -L -o /etc/yum.repos.d/corretto.repo https://yum.corretto.aws/corretto.repo && sudo yum install -y java-21-amazon-corretto-devel &&
+            sudo yum install java-21-openjdk &&
             mvn clean package -DskipTests'
 
       # Step 3: Check directory contents
