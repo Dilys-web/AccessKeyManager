@@ -38,10 +38,10 @@ public class OTPService {
     }
 
     @Async
-    public CompletableFuture<Boolean> sendOtp(String email, String otp){
+    public CompletableFuture<Boolean> sendOtp(String email, String otp, String verifyUrl){
         CompletableFuture<Void> emailFuture;
         String msg = "Click on the link below to verify your email address \n Or use the otp code provided \n";
-        msg += "Link:  http://localhost:4200/auth/verify-email?" + "email=" + email + "&" +"otp=";
+        msg += "Link: " + verifyUrl + "/verify-email" + "?" +"email=" + email + "&" +"otp=";
         msg += otp + "\n";
         msg += "OTP: " + otp + "\n";
         msg += "You have 5 minutes before otp expires";

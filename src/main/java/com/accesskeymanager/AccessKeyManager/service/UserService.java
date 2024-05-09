@@ -20,6 +20,7 @@ import jakarta.mail.MessagingException;
 import jakarta.persistence.EntityExistsException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -52,6 +53,9 @@ public class UserService {
     private final AuthenticationManager authenticationManager;
     private final SchoolRepository schoolRepository;
     private final TokenRepository tokenRepository;
+
+    @Value("${spring.frontend.url}")
+    private String frontendUrl;
 
 
     public ResponseEntity<SignInResponse> authenticate(SignInRequest request) {
@@ -107,7 +111,7 @@ public class UserService {
     private void sendOtp(HttpServletRequest request, AppUser appUser, String otp) {
         String verifyUrl = "http://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath();
         System.out.println(verifyUrl);
-        CompletableFuture<Boolean> otpFuture = otpService.sendOtp(appUser.getEmail(), otp);
+        CompletableFuture<Boolean> otpFuture = otpService.sendOtp(appUser.getEmail(), otp, frontendUrl);
         try {
             boolean isOtpSent = otpFuture.get();
             if (!isOtpSent) {
@@ -196,7 +200,7 @@ public class UserService {
                 .user(user)
                 .build();
         tokenRepository.save(resetToken);
-        emailService.sendPasswordResetEmail(user.getEmail(), "http://localhost:8080/activate-account" + "?token=" + token);
+        emailService.sendPasswordResetEmail(user.getEmail(), frontendUrl + "/activate-account" + "?token=" + token);
     }
 
 
