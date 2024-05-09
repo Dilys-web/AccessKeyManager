@@ -3,6 +3,8 @@ on:
   push:
     branches:
       - dev  # Adjust the branch name as needed
+      - dev2
+      - main
 jobs:
   build:
     runs-on: ubuntu-latest
