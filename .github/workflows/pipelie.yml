@@ -2,7 +2,7 @@ name: Build and Deploy
 on:
   push:
     branches:
-      - dev  # Adjust the branch name as needed
+      - dev
       - dev2
       - main
 
@@ -19,8 +19,9 @@ jobs:
       # Step 2: SSH into EC2 instance and build Maven project
       - name: SSH into EC2 instance and build Maven project
         run: |
-          ssh -o StrictHostKeyChecking=no -i /tmp/private_key.pem ec2-user@${{ secrets.EC2_PUBLIC_IP }} 'cd AccessKeyManager/ &&
-            sudo yum install -y maven &&
+          ssh -o StrictHostKeyChecking=no -i //tmp/private_key.pem ec2-user@${{ secrets.EC2_PUBLIC_IP }} 'cd AccessKeyManager/ &&
+            sudo yum install -y java-1.21.0.2-openjdk-devel &&
+            export JAVA_HOME=/usr/lib/jvm/java-1.21.0.2-openjdk &&
             mvn clean package -DskipTests'
 
       # Step 3: Check directory contents
