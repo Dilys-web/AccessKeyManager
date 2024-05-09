@@ -27,6 +27,10 @@ jobs:
       # Step 5: Build the Maven project
       - name: Build with Maven
         run: mvn clean package -DskipTests
+      # Step 6: Check directory contents
+      - name: Check directory contents
+        run: ls -la
+
   deploy:
     runs-on: ubuntu-latest
     needs: build
