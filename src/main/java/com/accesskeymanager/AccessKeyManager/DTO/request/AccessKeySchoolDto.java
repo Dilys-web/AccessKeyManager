@@ -4,14 +4,14 @@ import com.accesskeymanager.AccessKeyManager.Enum.KeyStatus;
 
 import java.time.LocalDate;
 
-public record AccessKeyDto(
+public record AccessKeySchoolDto(
         Long id,
         String accessKey,
         KeyStatus status,
         LocalDate dateOfProcurement,
-        LocalDate expiryDate
+        LocalDate expiryDate,
 
-
+        String schoolName
 ) {
 
 }
