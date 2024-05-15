@@ -2,17 +2,16 @@ package com.accesskeymanager.AccessKeyManager.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        @Setter
-@Getter
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 public class School {
-    // getters and setters
     @Id
     @Column(name = "school_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
