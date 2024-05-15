@@ -16,9 +16,7 @@ public class AdminSeeder implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        System.out.println("Admin is about to be seeded");
         String email = System.getenv("ADMIN_EMAIL");
-        System.out.println(email);
         boolean isAdminExists = userRepository.existsByEmail(email);
         if (!isAdminExists) {
             AppUser user = new AppUser();
