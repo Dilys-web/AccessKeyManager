@@ -34,11 +34,6 @@ public class UserController {
     public ResponseEntity<SignInResponse> login(@RequestBody @Valid SignInRequest signInRequest) {
         return userService.authenticate(signInRequest);
     }
-//    @GetMapping("verify-email")
-//    @Operation(summary = "user verification")
-//    public ResponseEntity<VerifyResponse>verify(@RequestParam(value = "otp", required = false)  String otp, @RequestParam(value = "email", required = false)  String email, @RequestBody(required = false) VerifyRequest request){
-//        return userService.verify(Objects.requireNonNullElseGet(request, () -> new VerifyRequest(email, otp)));
-//    }
 
     @GetMapping("verify-email")
     @Operation(summary = "user verification")

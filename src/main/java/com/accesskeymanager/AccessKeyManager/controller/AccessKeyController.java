@@ -41,12 +41,10 @@ public class AccessKeyController {
     @GetMapping("request/{schoolId}")
     @Operation(summary = "For generating access keys")
     public ResponseEntity<AccessKeyResponseDto> generateAccessKey(@PathVariable("schoolId") Long schoolId) {
-        System.out.println("hiii");
         // Retrieve authenticated user details
         UserDetails authentication = getCurrentUser();
        String userEmail = authentication.getUsername();
-        System.out.println(userEmail);
-        System.out.println("aaaaaaaa");
+
 
         try {
             // Generate the access key for the authenticated user
@@ -67,7 +65,7 @@ public class AccessKeyController {
 
     }
 
-    @GetMapping("active/{schoolEmail}")// when sch email was entered it says sch not found
+    @GetMapping("active/{schoolEmail}")
     public ResponseEntity<AccessKeyResponseDto> getAccessKeyForSchool(@PathVariable String schoolEmail){
         return  ResponseEntity.ok(accessKeyService.getAccessKeyForSchool(schoolEmail));
     }
@@ -91,25 +89,8 @@ public class AccessKeyController {
     public ResponseEntity<AccessKeyResponseDto> getAccessKey(@PathVariable Long keyId){
         return ResponseEntity.ok(accessKeyService.getAccessKey(keyId));
     }
-//    @DeleteMapping("revoke/{keyid}")
-//    @Operation(summary = "For deleting an access key")// no parameters
-//    public ResponseEntity<Void> revokeAccessKey(@Parameter(description = "key ID", in = ParameterIn.PATH) @PathVariable Long id) {
-//
-//        accessKeyService.revokeAccessKey(id);
-//
-//        return new ResponseEntity<>(HttpStatus.OK);
-//    }
 
-//    @GetMapping(value = "revoke/{keyid}")
-//    @Operation(summary = "For deleting an access key")// no parameters
-//    public ResponseEntity<Void> revokeAccessKey(@Parameter( required = true, description = "key ID") @PathVariable Long id) {
-//
-//        accessKeyService.revokeAccessKey(id);
-//
-//        return new ResponseEntity<>(HttpStatus.OK);
-//    }
-
-    @DeleteMapping("revoke/{keyId}")//: "No static resource api/v1/accesskeys/5."
+    @DeleteMapping("revoke/{keyId}")
     @Operation(summary = "For deleting the details of an access key")
     public ResponseEntity<Void> revokeAccessKey(@PathVariable Long keyId){
         accessKeyService.revokeAccessKey(keyId);
