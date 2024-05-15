@@ -4,9 +4,6 @@
 
 The Access Key Manager is a web application designed to facilitate the management and distribution of access keys for the school management platform developed by Micro-Focus Inc. The platform is multitenant, allowing various schools to set up on it, and it utilizes an access key-based approach for monetization.
 
-## Project Objective
-
-The objective of the Access Key Manager project is to build a web application that enables schools to purchase access keys to activate their accounts on the school management platform. The key manager will provide functionalities for both school IT personnel and Micro-Focus administrators.
 
 ## Customer Requirements
 
@@ -29,6 +26,12 @@ The objective of the Access Key Manager project is to build a web application th
 1. **Web Application Source Code**: Hosted on GitHub, implementing Git flow with a reasonable number of commits. Includes a well-written README file.
 2. **ER Diagram**: Database design diagram demonstrating the relationship between entities.
 3. **Deployed Link**: Link to the deployed web application.
+
+### ER DIAGRAM
+
+![ER DIAGRAM](ERD/ER_DIAGRAM.drawio.png)
+
+### [Deployed link](http://13.49.221.156:8080/swagger-ui/index.html)
 
 ## Usage
 
