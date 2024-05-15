@@ -30,11 +30,9 @@
      private final AccessKeyRepository accessKeyRepository;
      private final UserRepository userRepository;
      private final SchoolRepository schoolRepository;
-//     private static final Logger logger = Logger.getLogger(AccessKeyService.class.getName());
 
 
      public AccessKeyResponseDto generateAccessKey(String userEmail, Long schoolId) {
-         System.out.println(userEmail);
          AppUser user = userRepository.findByEmail(userEmail).orElseThrow(() -> new EntityNotFoundException("User does not exist"));
 
          try {
@@ -159,127 +157,7 @@
  }
 
 
-//     public AccessKeyDto generateAccessKey(String userEmail, Long schoolId ) {
-//
-//         Optional<AppUser> user = userRepository.findByEmail(userEmail);
-//         Optional<School> school = schoolRepository.findById(schoolId);
-//         AccessKeyDto dto = null;
-//
-//         AccessKey accessKey = new AccessKey();
-//         if(user.isEmpty()){
-//             throw new RuntimeException("User is not found.");
-//         }
-//         if(school.isEmpty()){
-//             throw new RuntimeException("User is not found.");
-//         }
-//         accessKey.setUser(user.get());
-//         accessKey.setSchool(school.get());
-//         accessKey.setAccessKey(genId().toUpperCase());
-//         AccessKey access = accessKeyRepository.save(accessKey);
-//
-//        if(access != null){
-//         dto = new AccessKeyDto(access.getId(),access.getUser().getEmail(),access.getUser().getId(), access.getSchool().getName(), access.getSchool().getId(),
-//                 access.getStatus(), access.getDateOfProcurement(), access.getExpiryDate(), access.getAccessKey(), checkExpiry(access.getExpiryDate()));
-//        }
-//         return dto;
-//     }
-//     public String genId() {
-//         try {
-//             String id = UUID.randomUUID().toString().replaceAll("-", "");
-//
-//             try {
-//                 boolean uuidStringMatcher = id.matches(".*[a-zA-Z]+.*");
-//
-//                 if (!uuidStringMatcher) {
-//                     Random random = new Random();
-//                     char cha = (char) (random.nextInt(26) + 'a');
-//                     int numToReplace = random.nextInt(9);
-//
-//                     id = id.replaceAll(String.valueOf(numToReplace), String.valueOf(cha));
-//                 }
-//             } catch (Exception e) {
-////                  logger.info(e.getMessage());
-//                 e.printStackTrace();
-//             }
-//
-//             return id;
-//         } catch (Exception e) {
-////             logger.info(e.getMessage());
-//             e.printStackTrace();
-//         }
-//
-//         return "";
-//     }
-
-//     public long checkExpiry(LocalDate expiryDate){
-//         LocalDate currDate = LocalDate.now();
-//         Duration diff = Duration.between(currDate.atStartOfDay(), expiryDate.atStartOfDay());
-//         long diffDays = diff.toDays();
-//         System.out.println("diffDays: "+diffDays);
-//         return diffDays;
-//     }
-
-//         public AccessKeyStatusDto checkAccessKeyStatus (String accessKeyDto) {
-//             LocalDate currentDate = LocalDate.now();
-//             LocalDate expiryDate = accessKeyDto.getExpiryDate();
-//
-//             boolean isExpired = currentDate.isAfter(expiryDate);
-//             String status = isExpired ? "Expired" : "Active";
-//
-//             return new AccessKeyStatusDto(accessKeyDto.getAccessKey(), status, expiryDate);
-//         }
 
 
-//     public AccessKeyDto revokeAccessKey(Long accessKey) {
-//         accessKeyRepository.delete(accessKey);
-//     }
-//
-//     // getting access keys
-//     public List<AccessKeyDto> getAllAccessKeys() {
-//         List<AccessKey> accessKeys = accessKeyRepository.findAll();
-//         List<AccessKeyDto> accessKeyDtos = accessKeys.stream()
-//                 .map(accessKey -> mapAccessKeyToDto(accessKey))
-//                 .collect(Collectors.toList());
-//
-//         return accessKeyDtos;
-//     }
-//
-//     private AccessKeyDto mapAccessKeyToDto(AccessKey access) {
-//         return new AccessKeyDto(access.getId(),access.getUser().getEmail(),access.getUser().getId(), access.getSchool().getName(), access.getSchool().getId(),
-//                 access.getStatus(), access.getDateOfProcurement(), access.getExpiryDate(), access.getAccessKey(),checkExpiry(access.getExpiryDate()));
-//     }
-//
-//     public List<AccessKey> getAccessKeysByUser(AppUser user) {
-//
-//         return accessKeyRepository.findByUser(user);
-//     }
-
-//     public Optional<AccessKey> getAccessKeyById(Long id) {
-//
-//         return accessKeyRepository.findById(id);
-//     }
-
-//     public AccessKey createAccessKey(AccessKeyDto accessKeyDto) {
-//         return accessKeyRepository.save(accessKeyDto);
-//     }
-//     public boolean hasActiveAccessKey(AppUser user) {
-//         List<AccessKey> accessKeys = accessKeyRepository.findByUser(user);
-//         for (AccessKey accessKey : accessKeys) {
-//             if (accessKey.getStatus() == KeyStatus.ACTIVE && accessKey.getExpiryDate().isAfter(LocalDate.now())) {
-//                 return true;
-//             }
-//         }
-//         return false;
-
-// public AccessKeyDto updateAccessKey(AccessKeyDto updatedAccessKey) {
-//     AccessKey accessKey = accessKeyRepository.findById(updatedAccessKey.id()).get();
-//     accessKey.setStatus(updatedAccessKey.status());
-//     accessKey.setDateOfProcurement(updatedAccessKey.dateOfProcurement());
-//     accessKey.setExpiryDate(updatedAccessKey.expiryDate());
-//     accessKey.setAccessKey(genId().toUpperCase());
-//     AccessKey access = accessKeyRepository.save(accessKey);
-//     return new AccessKeyDto(access.getId(),access.getUser().getEmail(),access.getUser().getId(), access.getSchool().getName(), access.getSchool().getId(),
-//             access.getStatus(), access.getDateOfProcurement(), access.getExpiryDate(), access.getAccessKey(),checkExpiry(access.getExpiryDate()));
-// }
 
 

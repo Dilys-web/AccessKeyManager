@@ -55,7 +55,7 @@ public class UserService {
     private final SchoolRepository schoolRepository;
     private final TokenRepository tokenRepository;
 
-    @Value("${spring.frontend.url}")
+    @Value("${FRONT_END_URL}")
     private String frontendUrl;
 
 
@@ -136,8 +136,6 @@ public class UserService {
         String otpFromCache = String.valueOf(otpService.generateOtp(String.valueOf(user.getId())));
 
         if (!otpFromCache.equals(request.otp()) ) {
-            System.out.println(otpFromCache);
-            System.out.println(request.otp());
             return ResponseEntity.badRequest().body(new VerifyResponse(ERROR, "Wrong Otp"));
 
         }
