@@ -18,44 +18,16 @@ import java.util.Optional;
     public class SchoolService {
 
         private final SchoolRepository schoolRepository;
-        private final UserRepository userRepository;
 
-//        public SchoolDto createSchool(String name, String emailDomain, String userEmail) {
-//
-//            AppUser user = userRepository.findByEmail(userEmail).orElseThrow(() -> new IllegalArgumentException("User not found"));
-//
-//            List<AppUser> users = new ArrayList<>();
-//            users.add(user);
-//            // Create a new school entity
-//            School school = new School();
-//            school.setName(name);
-//            school.setEmailDomain(emailDomain);
-//           // school.setUsers(users);
-//
-//            school = schoolRepository.save(school);
-//
-//            // Map the school entity to a school DTO
-//            return new SchoolDto(school.getName(), school.getEmailDomain(),user.getId());
-//        }
+
         public School createSchool(String name, String emailDomain) {
+
             School school = new School();
             school.setName(name);
             school.setEmailDomain(emailDomain);
             return schoolRepository.save(school);
         }
 
-
-//        public List<School> getAllSchools() {
-//            //List<SchoolDto> dtoList = new LinkedList<>();
-//
-//            List<School> schoolList = schoolRepository.findAll();
-//           // schoolList.forEach(school -> {
-//             //   dtoList.add(new SchoolDto( school.getName(),school.getEmailDomain()));
-//
-//          //  });
-//            return schoolList;
-//
-//        }
 
         public Optional<School> getSchoolById(Long id) {
 
@@ -96,9 +68,6 @@ import java.util.Optional;
         }
 
 
-//        public List<School> getAllSchools() {
-//            return schoolRepository.findAllSchools();
-//        }
         public Optional<School> findSchoolsByEmail(String emailDomain) {
             return schoolRepository.findByEmailDomain(emailDomain);
         }

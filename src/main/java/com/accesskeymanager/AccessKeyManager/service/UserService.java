@@ -21,6 +21,8 @@ import jakarta.mail.MessagingException;
 import jakarta.persistence.EntityExistsException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,13 +40,14 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-
 import static com.accesskeymanager.AccessKeyManager.Enum.ResponseConstant.ERROR;
 import static com.accesskeymanager.AccessKeyManager.Enum.ResponseConstant.SUCCESS;
 
 @RequiredArgsConstructor
 @Service
 public class UserService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserService.class);
 
     private final UserRepository userRepository;
     private final JwtService jwtService;
@@ -72,11 +75,27 @@ public class UserService {
         if (!user.isVerified()) {
             throw new UserNotVerifiedException("Account not verified");
         }
+<<<<<<< Updated upstream
 //        String token = jwtService.generateToken(user);
         String jwtToken;
         jwtToken = generateJwtToken(user);
 
         return ResponseEntity.ok(new SignInResponse(jwtToken, SUCCESS, "Login successful"));
+=======
+        String jwtToken;
+        jwtToken = generateJwtToken(user);
+
+        return ResponseEntity.ok(new SignInResponse(jwtToken, SUCCESS, "Login successful"));
+    }
+
+    private String generateJwtToken(AppUser appUser) {
+        Map<String, Object> claims = new HashMap<>();
+        if(appUser.getRole() != Role.ADMIN) {
+            claims.put("schoolid", appUser.getSchool().getId());
+        }
+            return  jwtService.generateToken(claims, appUser);
+
+>>>>>>> Stashed changes
     }
 
     private String generateJwtToken(AppUser appUser) {
@@ -143,7 +162,9 @@ public class UserService {
 
 
     public ResponseEntity<VerifyResponse> verify(VerifyRequest request) {
+        System.out.println(request.email());
         Optional<AppUser> optionalUser = userRepository.findByEmail(request.email());
+
         if (optionalUser.isEmpty()) {
             return ResponseEntity.badRequest().body(new VerifyResponse(ERROR, "User not found"));
         }
@@ -244,4 +265,4 @@ public class UserService {
 
 
 
-}
+    }
