@@ -5,6 +5,7 @@ import com.accesskeymanager.AccessKeyManager.DTO.request.SchoolDto;
 import com.accesskeymanager.AccessKeyManager.model.School;
 import com.accesskeymanager.AccessKeyManager.service.SchoolService;
 import com.accesskeymanager.AccessKeyManager.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,15 +16,14 @@ import java.util.Optional;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("/schools/")
+@RequestMapping("/schools")
 public class SchoolController {
 
     private final SchoolService schoolService;
-    private final UserService userService;
 
     @GetMapping("/get-schools/{id}")
+    @Operation(summary = "getting a school")
      public ResponseEntity<SchoolDto>  getSchoolById(@PathVariable Long id) {
-        System.out.println("School");
          Optional<School> schoolOptional = schoolService.findById(id);
 
          if (schoolOptional.isPresent()) {
@@ -33,36 +33,14 @@ public class SchoolController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
   }
 
-//    @PostMapping("/schools")
-//    public ResponseEntity<?> createSchool(@RequestBody SchoolDto schoolDto, Principal principal) {
-//        // Validate request
-//
-//        if (schoolDto.name() == null || schoolDto.emailDomain() == null) {
-//            return ResponseEntity.badRequest().body("Name and email domain are required.");
-//        }
-//
-//        // Check if school already exists
-//        if (schoolService.findByEmailDomain(schoolDto.emailDomain()).isPresent()) {
-//            return ResponseEntity.status(HttpStatus.CONFLICT).body("School with this email domain already exists.");
-//        }
-//
-//        if(principal != null){
-//            // Create new school
-//
-//            SchoolDto newSchool = schoolService.createSchool(schoolDto.name(), schoolDto.emailDomain(), principal.getName());
-//            return ResponseEntity.ok(newSchool);
-//
-//        }
-//        return null;
-//    }
-    @PostMapping("/schools")
+    @PostMapping("/create school")
+    @Operation(summary = "creating a school")
     public ResponseEntity<?> createSchool(@RequestBody CreateSchoolRequest createSchoolRequest) {
         // Validate request
         if (createSchoolRequest.getName() == null || createSchoolRequest.getEmailDomain() == null) {
             return ResponseEntity.badRequest().body("Name and email domain are required.");
         }
 
-        // Check if school already exists
         Optional<School> existingSchool = schoolService.findByEmailDomain(createSchoolRequest.getEmailDomain());
         if (existingSchool.isPresent()) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("School with this email domain already exists.");
@@ -75,7 +53,7 @@ public class SchoolController {
 
 
 
-    @PutMapping("/schools")
+//    @PutMapping("/schools")
 //    public ResponseEntity<SchoolDto> updateSchool(@RequestBody SchoolDto schoolDto) {
 //
 //        // Create new school
@@ -83,7 +61,8 @@ public class SchoolController {
 //        return ResponseEntity.ok(newSchool);
 //    }
 
-    @DeleteMapping("schools/{id}")
+    @DeleteMapping("revoke/{id}")
+    @Operation(summary = "deleting a school")
     public ResponseEntity<Void> revokeSchool(@PathVariable Long id) {
         Optional<School> schoolOptional = schoolService.getSchoolById(id);
         if (schoolOptional.isEmpty()) {

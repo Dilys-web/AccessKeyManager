@@ -6,9 +6,9 @@ import com.accesskeymanager.AccessKeyManager.DTO.response.AccessKeyResponseDto;
 import com.accesskeymanager.AccessKeyManager.Exception.OperationFailedException;
 import com.accesskeymanager.AccessKeyManager.service.AccessKeyService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -23,6 +23,8 @@ import java.util.List;
 @RequestMapping("/api/v1/accesskeys/")
 @AllArgsConstructor
 public class AccessKeyController {
+
+    private final Logger LOGGER = LoggerFactory.getLogger(AccessKeyController.class);
 
     private final AccessKeyService accessKeyService;
 
@@ -51,7 +53,7 @@ public class AccessKeyController {
             AccessKeyResponseDto createdAccessKey = accessKeyService.generateAccessKey(userEmail,schoolId);
             return new ResponseEntity<>(createdAccessKey, HttpStatus.CREATED);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error(e.getMessage());
             // Handle any exceptions that occur during access key generation
             throw new OperationFailedException(e.getMessage());
         }
@@ -66,7 +68,7 @@ public class AccessKeyController {
     }
 
     @GetMapping("active/{schoolEmail}")
-    public ResponseEntity<AccessKeyResponseDto> getAccessKeyForSchool(@PathVariable String schoolEmail){
+    public ResponseEntity< AccessKeyResponseDto> getAccessKeyForSchool(@PathVariable String schoolEmail){
         return  ResponseEntity.ok(accessKeyService.getAccessKeyForSchool(schoolEmail));
     }
     public UserDetails getCurrentUser() {
