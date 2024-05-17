@@ -75,28 +75,22 @@ public class UserService {
         if (!user.isVerified()) {
             throw new UserNotVerifiedException("Account not verified");
         }
-<<<<<<< Updated upstream
-//        String token = jwtService.generateToken(user);
-        String jwtToken;
-        jwtToken = generateJwtToken(user);
 
-        return ResponseEntity.ok(new SignInResponse(jwtToken, SUCCESS, "Login successful"));
-=======
         String jwtToken;
         jwtToken = generateJwtToken(user);
 
         return ResponseEntity.ok(new SignInResponse(jwtToken, SUCCESS, "Login successful"));
     }
 
-    private String generateJwtToken(AppUser appUser) {
-        Map<String, Object> claims = new HashMap<>();
-        if(appUser.getRole() != Role.ADMIN) {
-            claims.put("schoolid", appUser.getSchool().getId());
-        }
-            return  jwtService.generateToken(claims, appUser);
-
->>>>>>> Stashed changes
-    }
+//    private String generateJwtToken(AppUser appUser) {
+//        Map<String, Object> claims = new HashMap<>();
+//        if(appUser.getRole() != Role.ADMIN) {
+//            claims.put("schoolid", appUser.getSchool().getId());
+//        }
+//            return  jwtService.generateToken(claims, appUser);
+//
+//>>>>>>> Stashed changes
+//    }
 
     private String generateJwtToken(AppUser appUser) {
         Map<String, Object> claims = new HashMap<>();
