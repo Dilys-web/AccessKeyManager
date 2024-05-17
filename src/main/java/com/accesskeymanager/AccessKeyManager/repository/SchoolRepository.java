@@ -13,11 +13,10 @@ import java.util.Optional;
 
 @Repository
 public interface SchoolRepository extends JpaRepository<School, Long> {
-    // You can add custom query methods here if needed
     Optional<School> findByEmailDomain(String emailDomain);
 
     boolean existsByEmailDomain(String email);
 
- Optional<School>findAllByEmailDomain(String emailDomain);
+    Optional<School>findAllByEmailDomain(String emailDomain);
 
 }

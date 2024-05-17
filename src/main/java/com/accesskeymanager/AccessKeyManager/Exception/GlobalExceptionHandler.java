@@ -9,6 +9,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 
 import javax.naming.AuthenticationException;
@@ -16,7 +17,7 @@ import java.nio.file.AccessDeniedException;
 import java.util.HashMap;
 import java.util.Map;
 
-@ControllerAdvice
+@RestControllerAdvice
 public class GlobalExceptionHandler {
     @ExceptionHandler({Exception.class, EmailFailedException.class})
     public final ResponseEntity<ErrorResponse> exceptionResponse (Exception exception, WebRequest webRequest){
@@ -31,6 +32,7 @@ public class GlobalExceptionHandler {
          return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 
+
     @ExceptionHandler({EntityNotFoundException.class})
     public final ResponseEntity<ErrorResponse> handlerNotFoundExceptions(Exception exception, WebRequest request){
         ErrorResponse errorResponse = new ErrorResponse(exception.getMessage(), request.getDescription(false));
@@ -39,7 +41,6 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler({AuthenticationException.class, InsufficientAuthenticationException.class, AccessDeniedException.class, BadCredentialsException.class})
     public final ResponseEntity<ErrorResponse>  handleAuthenticationExceptions(Exception exception, WebRequest webRequest){
-        System.out.println("dddddddd");
         exception.printStackTrace();
         ErrorResponse errorResponse = new ErrorResponse(exception.getMessage(), webRequest.getDescription(false));
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);

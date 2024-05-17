@@ -10,7 +10,7 @@ public record SignUpRequest(
         @Email
         String email,
 
-
+ 
         @NotBlank
         String password,
         String schoolName
