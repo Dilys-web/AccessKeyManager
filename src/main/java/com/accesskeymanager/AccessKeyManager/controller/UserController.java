@@ -3,10 +3,7 @@ package com.accesskeymanager.AccessKeyManager.controller;
 
 import com.accesskeymanager.AccessKeyManager.DTO.request.ResetPasswordRequest;
 import com.accesskeymanager.AccessKeyManager.DTO.request.*;
-import com.accesskeymanager.AccessKeyManager.DTO.response.ChangePasswordResponse;
-import com.accesskeymanager.AccessKeyManager.DTO.response.SignInResponse;
-import com.accesskeymanager.AccessKeyManager.DTO.response.SignUpResponse;
-import com.accesskeymanager.AccessKeyManager.DTO.response.VerifyResponse;
+import com.accesskeymanager.AccessKeyManager.DTO.response.*;
 import com.accesskeymanager.AccessKeyManager.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.mail.MessagingException;
@@ -15,13 +12,15 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/auth/")
 @AllArgsConstructor
 public class UserController {
-    private  final UserService userService;
+
+    private final UserService userService;
 
     @PostMapping("signup")
     @Operation(summary = "registering a user")
@@ -41,9 +40,6 @@ public class UserController {
         return userService.verify(request);
     }
 
-
-
-
     @PostMapping("change-password")
     @Operation(summary = "change password")
     public ResponseEntity<ChangePasswordResponse>changePassword(@RequestBody @Valid ChangePasswordRequest changePasswordRequest, HttpServletRequest request){
@@ -60,6 +56,12 @@ public class UserController {
     public ResponseEntity<?> forgotPassword(@RequestBody ForgotPasswordRequest forgotPasswordRequest) throws MessagingException {
         userService.forgotPassword(forgotPasswordRequest.email());
         return ResponseEntity.ok().body("Forgot password email sent.");
+    }
+
+    @GetMapping("logout")
+    public ResponseEntity<GenericResponse> logout() {
+        SecurityContextHolder.getContext().setAuthentication(null);
+        return ResponseEntity.ok(new GenericResponse("logout successful", HttpStatus.OK.value()));
     }
 
 
