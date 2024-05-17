@@ -84,7 +84,7 @@ public class AccessKeyController {
         }
     }
 
-    @GetMapping("{keyId}")//: "No static resource api/v1/accesskeys/5."
+    @GetMapping("{keyId}")
     @Operation(summary = "For getting the details of an access key")
     public ResponseEntity<AccessKeyResponseDto> getAccessKey(@PathVariable Long keyId){
         return ResponseEntity.ok(accessKeyService.getAccessKey(keyId));
