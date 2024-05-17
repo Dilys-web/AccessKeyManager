@@ -1,6 +1,7 @@
 package com.accesskeymanager.AccessKeyManager.config;
 
 
+import com.accesskeymanager.AccessKeyManager.service.UserDetailServiceImpl;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,7 +23,7 @@ import java.io.IOException;
 public class JwtAuthFilter extends OncePerRequestFilter {
 
 
-    private final UserDetailsService userDetailsService;
+    private final UserDetailServiceImpl userDetailsService;
     private final JwtService jwtService;
 
     @Override
@@ -32,10 +33,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
 //
-        if (request.getServletPath().contains("/api/v1/auth")) {
-            filterChain.doFilter(request,response);
-            return;
-        }
+//        if (request.getServletPath().contains("/api/v1/auth")) {
+//            filterChain.doFilter(request,response);
+//            return;
+//        }
         final String authHeader = request.getHeader("Authorization");
         final String jwt;
         final String userEmail;

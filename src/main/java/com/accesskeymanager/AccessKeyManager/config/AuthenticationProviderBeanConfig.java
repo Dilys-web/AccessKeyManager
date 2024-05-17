@@ -1,7 +1,8 @@
 package com.accesskeymanager.AccessKeyManager.config;
 
-import com.accesskeymanager.AccessKeyManager.service.UserDetailService;
+import com.accesskeymanager.AccessKeyManager.service.UserDetailServiceImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
@@ -23,7 +24,9 @@ import java.util.Collections;
 public class AuthenticationProviderBeanConfig {
 
        // the "UserDetailsService" is coming from spring
-    private final UserDetailService userDetailsService;
+    private final UserDetailServiceImpl userDetailsService;
+    @Value("${FRONT_END_URL}")
+    private String frontendUrl;
 
     @Bean
     public AuthenticationProvider authenticationProvider(){
@@ -48,7 +51,7 @@ public class AuthenticationProviderBeanConfig {
         final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         final CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.setAllowedOrigins(Collections.singletonList("http://localhost:4200"));
+        config.setAllowedOrigins(Collections.singletonList(frontendUrl));
         config.setAllowedHeaders(Arrays.asList(
                 HttpHeaders.ORIGIN,
                 HttpHeaders.CONTENT_TYPE,

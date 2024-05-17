@@ -2,6 +2,8 @@ package com.accesskeymanager.AccessKeyManager.config;
 
 
 import com.accesskeymanager.AccessKeyManager.model.AppUser;
+import com.accesskeymanager.AccessKeyManager.model.Token;
+import com.accesskeymanager.AccessKeyManager.repository.TokenRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -16,6 +18,7 @@ import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 
 @Service
@@ -34,6 +37,7 @@ public class JwtService {
     @Value("${application.security.jwt.secret-key}")
     private String SECRET_KEY;
 
+    private final TokenRepository tokenRepository;
 
     public String extractUsername(String token) {
         return extractClaims(token, Claims::getSubject);
@@ -99,5 +103,17 @@ public class JwtService {
         byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
         return Keys.hmacShaKeyFor(keyBytes);
     }
-}
+
+
+    public void blacklistToken(String token) {
+            Optional<Token> optionalToken = tokenRepository.findByToken(token);
+            if (optionalToken.isPresent()) {
+                Token tokenObj = optionalToken.get();
+                tokenObj.setBlacklisted(true);
+                tokenRepository.save(tokenObj);
+            }
+        }
+    }
+
+
 
