@@ -32,6 +32,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -70,10 +72,24 @@ public class UserService {
         if (!user.isVerified()) {
             throw new UserNotVerifiedException("Account not verified");
         }
-        String token = jwtService.generateToken(user);
+//        String token = jwtService.generateToken(user);
+        String jwtToken;
+        jwtToken = generateJwtToken(user);
 
-        return ResponseEntity.ok(new SignInResponse(token, SUCCESS, "Login successful"));
+        return ResponseEntity.ok(new SignInResponse(jwtToken, SUCCESS, "Login successful"));
     }
+
+    private String generateJwtToken(AppUser appUser) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("schoolid", appUser.getSchool().getId());
+            return  jwtService.generateToken(claims, appUser);
+
+    }
+
+
+
+
+
 
     public ResponseEntity<SignUpResponse> register(SignUpRequest signUpRequest, HttpServletRequest request) {
         if (userRepository.existsByEmail(signUpRequest.email())) {
@@ -205,6 +221,27 @@ public class UserService {
         tokenRepository.save(resetToken);
         emailService.sendPasswordResetEmail(user.getEmail(), frontendUrl + "/activate-account" + "?token=" + token);
     }
+//    public ResponseEntity<Void> logout(String token) {
+//        if (token != null) {
+//            try {
+//                Claims claims = extractAllClaims(token);
+//                String username = claims.getSubject();
+//                // Optional validation using userDetails (if applicable)
+//                // ...
+//
+//                // Blacklist the token after successful validation (optional)
+//                blacklistToken(token);
+//
+//                return ResponseEntity.ok().build(); // Successful logout
+//            } catch (Exception e) {
+//                // Handle invalid token or other exceptions
+//                System.out.println("Invalid token provided for logout");
+//                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build(); // Unauthorized
+//            }
+//        } else {
+//            return ResponseEntity.badRequest().build(); // Missing token
+//        }
+
 
 
 }

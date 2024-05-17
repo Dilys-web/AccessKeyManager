@@ -15,7 +15,7 @@ import java.util.Optional;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("/api/v1/auth/")
+@RequestMapping("/schools/")
 public class SchoolController {
 
     private final SchoolService schoolService;

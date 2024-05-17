@@ -1,17 +1,17 @@
 package com.accesskeymanager.AccessKeyManager.DTO.request;
 
-import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
+
+import java.util.UUID;
 
 
 public record SchoolDto (
 
          @NotBlank(message ="Name is required")
          String name,
-          @NotBlank(message = "Email is required")
+         @NotBlank(message = "Email is required")
          String emailDomain,
 
-         Long userId
+         UUID userId
 ){
 }
