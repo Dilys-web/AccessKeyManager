@@ -2,11 +2,13 @@ package com.accesskeymanager.AccessKeyManager.DTO.response;
 
 import com.accesskeymanager.AccessKeyManager.Enum.ResponseConstant;
 
+import java.util.UUID;
+
 public record SignUpResponse(
         ResponseConstant status,
-        Long userId,
+        UUID userId,
 
-        Long schoolId
+        UUID schoolId
 
 
 ) {
